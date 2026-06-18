@@ -1,0 +1,13 @@
+{
+  "name": "mycelium-for-solibri",
+  "version": "0.1.0",
+  "description": "Mycelium connector — Solibri checking/QA results via the Solibri Desktop REST API. Spine adapter, zero runtime deps.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=18" },
+  "bin": { "mycelium-for-solibri": "connector.mjs" },
+  "scripts": {
+    "start": "node connector.mjs",
+    "test": "node --test"
+  }
+}
