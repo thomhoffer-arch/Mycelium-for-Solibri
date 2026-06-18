@@ -6,7 +6,17 @@ surfaces in one package:
 | Surface | Source | Endpoint | Mapped by |
 |---|---|---|---|
 | **Issues** | Presentation-view issues (BCF) | `GET /bcfxml/{version}` | shared vendored **`bcf-api.mjs`** (`topicToRow`) |
-| **Checking / QA** | rule results (severity, status, rule, component) | `GET /checking/results` | native mapper (Solibri-only) |
+| **Checking / QA** | rule results (severity, status, rule, component) | plugin route via `SOLIBRI_CHECKING_PATH` (opt-in) | native mapper (Solibri-only) |
+
+> **Verified against the [Solibri Developer Platform docs](https://solibri.github.io/Developer-Platform/) (2026-06).**
+> The stock Solibri Desktop REST API (base path **`/solibri/v1`**, port `10876`)
+> exposes a small surface — `/ping`, `/about`, `/status`,
+> `GET /bcfxml/{version}`, `/models/*`, `/selectionBasket`. It has **no native
+> checking-results endpoint**: Solibri delivers checking results *as BCF*
+> through `/bcfxml` (export saved Presentation results). The QA surface is
+> therefore **opt-in** — point `SOLIBRI_CHECKING_PATH` at a site-specific
+> Solibri plugin (Java SMC API, `com.solibri.smc.api.checking`) that serves rule
+> results as JSON. Unset, the connector only pulls BCF issues over REST.
 
 Self-contained by design: it vendors the SDK *and* the canonical BCF-API mapping
 (`vendor/bcf-api.mjs`), so there's **one install, no shared lib to wire up**.
@@ -28,17 +38,18 @@ The REST API is served on localhost while Solibri Desktop runs (Solibri
 Developer Platform → *Using Solibri with REST API*).
 
 ```bash
-export SOLIBRI_BASE_URL=http://localhost:10876/api   # confirm host/port + base path
+export SOLIBRI_BASE_URL=http://localhost:10876/solibri/v1   # documented base path
 export SOLIBRI_TOKEN=<bearer if your setup requires one>
 export SOLIBRI_PROJECT_KEY=horizons
+export SOLIBRI_CHECKING_PATH=/your-plugin/results           # optional: QA surface
 node connector.mjs
 ```
 
-> **Verify the endpoints.** `src/solibri-client.mjs` assumes `GET /bcfxml/2.1`
-> for issues and `GET /checking/results` for QA. Exact paths/fields vary by
-> Solibri version — check your version's OpenAPI and adjust the two path
-> constants + the QA field mapping. The spine mapping and conformance stay the
-> same.
+> **Verify the version.** `src/solibri-client.mjs` reads issues from
+> `GET /bcfxml/2.1`; confirm `{version}` against your build's Swagger UI
+> (`http://localhost:10876/solibri/v1/`). The QA surface only fires when
+> `SOLIBRI_CHECKING_PATH` is set — adjust the QA field mapping (`qaToRow`) to
+> your plugin's JSON. The spine mapping and conformance stay the same.
 
 ## Layout
 
