@@ -2,7 +2,8 @@
 // mycelium-for-solibri — a COMPLETE, standalone Solibri connector covering BOTH
 // Solibri surfaces in one package:
 //   • issues       (Solibri /bcfxml, mapped by the shared vendored bcf-api)
-//   • checking/QA  (Solibri rule results — the data BCF can't express)
+//   • checking/QA  (rule results — opt-in via SOLIBRI_CHECKING_PATH; the data
+//                   BCF can't express, served by a Solibri plugin)
 // Self-contained: vendored SDK + vendored bcf-api mapping + native QA mapper.
 // One install, set env vars, run.
 import { runAdapter } from './vendor/mycelium-sdk.mjs';
