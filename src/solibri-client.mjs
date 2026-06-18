@@ -50,8 +50,8 @@ const MOCK_QA = [
   },
 ];
 
-async function getJson(url, token) {
-  const res = await fetch(url, {
+async function getJson(url, token, fetchImpl = fetch) {
+  const res = await fetchImpl(url, {
     headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
   });
   if (!res.ok) throw new Error(`Solibri REST ${res.status} ${res.statusText} for ${url}`);
@@ -59,7 +59,8 @@ async function getJson(url, token) {
 }
 
 // Native Solibri checking-result → row (carries rule/severity/status as text).
-function qaToRow(r, projectKey) {
+// Exported for unit testing.
+export function qaToRow(r, projectKey) {
   return {
     localId: r.guid ?? r.id,
     project: projectKey,
@@ -76,8 +77,10 @@ function safeDerive(uniqueId) {
 }
 
 // Returns a fetchSource() that emits BOTH surfaces as a single row array.
-export function makeFetchSource({ env = process.env } = {}) {
-  const baseUrl = env.SOLIBRI_BASE_URL; // e.g. http://localhost:10876/solibri/v1
+// Pass fetchImpl to override global fetch (used in tests).
+export function makeFetchSource({ env = process.env, fetchImpl = fetch } = {}) {
+  // Strip trailing slash so callers don't have to be careful about it.
+  const baseUrl = env.SOLIBRI_BASE_URL?.replace(/\/+$/, '');
   const token = env.SOLIBRI_TOKEN;
   const projectKey = env.SOLIBRI_PROJECT_KEY ?? 'horizons';
   // Opt-in: a site-specific plugin route that returns checking results as JSON.
@@ -90,10 +93,12 @@ export function makeFetchSource({ env = process.env } = {}) {
       const qa = MOCK_QA.map((r) => qaToRow(r, projectKey));
       return [...issues, ...qa];
     }
-    const topics = await getJson(`${baseUrl}${BCFXML_PATH}`, token).catch(() => []);
+    const topics = await getJson(`${baseUrl}${BCFXML_PATH}`, token, fetchImpl).catch(() => []);
     const issues = (topics ?? []).map((t) => topicToRow(t, { projectKey, deriveIfcGuid }));
     // Only hit the checking route when a plugin path is configured.
-    const results = checkingPath ? await getJson(`${baseUrl}${checkingPath}`, token).catch(() => []) : [];
+    const results = checkingPath
+      ? await getJson(`${baseUrl}${checkingPath}`, token, fetchImpl).catch(() => [])
+      : [];
     const qa = (results ?? []).map((r) => qaToRow(r, projectKey));
     return [...issues, ...qa];
   };
