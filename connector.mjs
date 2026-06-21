@@ -35,8 +35,13 @@ export async function run(env = process.env) {
   return runAdapter(config, { fetchSource: makeFetchSource({ env }) });
 }
 
+// Direct-run guard. Wrapped in an async IIFE (not top-level await) so this
+// module also bundles cleanly to CommonJS for the packaged binary, where it is
+// inert (import.meta is empty → guard is false; bin/cli.mjs drives execution).
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const result = await run();
-  console.log(JSON.stringify(result, null, 2));
-  process.exit(result.conformant ? 0 : 1);
+  (async () => {
+    const result = await run();
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(result.conformant ? 0 : 1);
+  })();
 }

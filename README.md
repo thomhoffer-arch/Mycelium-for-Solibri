@@ -23,6 +23,33 @@ Self-contained by design: it vendors the SDK *and* the canonical BCF-API mapping
 Emits Connective Spine identity + freshness records (join key `ifcGuid` + `zone`,
 `confidence: 'live'`).
 
+## One-click app (no Node required)
+
+For non-developers, build self-contained executables that bundle the Node
+runtime — nothing else to install:
+
+```bash
+npm install          # dev deps: esbuild + @yao-pkg/pkg
+npm run build:binaries
+```
+
+This produces two ready installers in `dist/`:
+
+| File | Platform | How to use |
+|---|---|---|
+| `Mycelium-for-Solibri-Windows.zip` | Windows x64 | unzip → run `Install-Windows.cmd` (Desktop shortcut), or double-click the `.exe` |
+| `Mycelium-for-Solibri-macOS.zip` | macOS (Apple Silicon + Intel) | unzip → run `Install-macOS.command` (installs to /Applications, ad-hoc signs) |
+
+On first launch the app writes an editable `solibri.config.json` next to itself
+(macOS: `~/MyceliumForSolibri/`), runs the offline demo, and writes the full
+spine feed to `solibri-spine-output.json`. Point `SOLIBRI_BASE_URL` at Solibri
+Desktop's REST API and launch again to go live. See `installer/README-FIRST.txt`.
+
+> macOS binaries are cross-built unsigned; the installer ad-hoc-signs them on
+> the user's Mac (`codesign --sign -`). For wide distribution, sign + notarize
+> with an Apple Developer ID. Windows `.exe` is unsigned — sign with an
+> Authenticode certificate to avoid SmartScreen prompts.
+
 ## Build & run — in one go
 
 Zero runtime dependencies (vendored SDK + vendored mapping).
