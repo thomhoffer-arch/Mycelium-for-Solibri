@@ -8,6 +8,12 @@
   "bin": { "mycelium-for-solibri": "connector.mjs" },
   "scripts": {
     "start": "node connector.mjs",
-    "test": "node --test"
+    "test": "node --test",
+    "bundle": "node build/build.mjs bundle",
+    "build:binaries": "node build/build.mjs all"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.6.0",
+    "esbuild": "^0.25.0"
   }
 }
