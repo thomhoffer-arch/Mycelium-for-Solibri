@@ -2,7 +2,7 @@ Mycelium for Solibri — quick start
 ==================================
 
 This app reads issues and checking/QA data from Solibri Desktop's REST API and
-emits Connective Spine records (a normalized JSON feed).
+emits Connective Spine records (a normalized JSON feed) for Mycelium Studio.
 
 BEFORE YOU START
 ----------------

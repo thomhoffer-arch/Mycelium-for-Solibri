@@ -20,8 +20,8 @@ surfaces in one package:
 
 Self-contained by design: it vendors the SDK *and* the canonical BCF-API mapping
 (`vendor/bcf-api.mjs`), so there's **one install, no shared lib to wire up**.
-Emits Connective Spine identity + freshness records (join key `ifcGuid` + `zone`,
-`confidence: 'live'`).
+Emits Connective Spine identity + freshness records for **Mycelium Studio**
+(join key `ifcGuid` + `zone`, `confidence: 'live'`).
 
 ## One-click app (no Node required)
 
